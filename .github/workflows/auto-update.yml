@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get latest kubectl-gs release
         id: latest
@@ -55,9 +55,11 @@ jobs:
           chmod +x update_flake.sh
           ./update_flake.sh ${{ steps.latest.outputs.version }} /tmp/new_hashes.txt
 
-      - name: Verify the build works
+      - name: Install Nix
         if: steps.compare.outputs.needs_update == 'true'
-        uses: DeterminateSystems/nix-installer-action@main
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build package
         if: steps.compare.outputs.needs_update == 'true'
