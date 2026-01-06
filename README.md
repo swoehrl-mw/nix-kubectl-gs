@@ -34,7 +34,11 @@ pkgs.mkShellNoCC {
 
 Steps to update the Flake to a new version:
 
-1. Change the version in `calc_hashes.sh` and run the script
+1. Run `calc_hashes.sh` with the new version as argument:
+
+   ```sh
+   ./calc_hashes.sh x.x.x
+   ```
 2. Edit `flake.nix`:
    1. Paste the output of the script into the `source_hashes` block
    2. Change the `pkg_version`
