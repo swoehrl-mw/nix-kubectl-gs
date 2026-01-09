@@ -34,9 +34,11 @@ pkgs.mkShellNoCC {
 
 Steps to update the Flake to a new version:
 
-1. Change the version in `calc_hashes.sh` and run the script
-2. Edit `flake.nix`:
-   1. Paste the output of the script into the `source_hashes` block
-   2. Change the `pkg_version`
-3. Commit and push the changes
-4. Tag the commit with the new version
+1. Run `update_flake.py` with the new version as argument:
+
+   ```sh
+   python ./update_flake.py x.x.x
+   ```
+
+2. Commit and push the changes
+3. Tag the commit with the new version
