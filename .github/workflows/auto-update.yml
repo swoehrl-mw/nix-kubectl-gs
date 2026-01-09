@@ -16,44 +16,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Get latest kubectl-gs release
-        id: latest
+      - name: Get and compare versions
+        id: compare
         run: |
           LATEST_VERSION=$(curl -s https://api.github.com/repos/giantswarm/kubectl-gs/releases/latest | jq -r '.tag_name' | sed 's/^v//')
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-          echo "Latest kubectl-gs version: $LATEST_VERSION"
+          echo "Latest kubectl-gs version: $LATEST_VERSION" >> $GITHUB_STEP_SUMMARY
 
-      - name: Get current version from flake.nix
-        id: current
-        run: |
           CURRENT_VERSION=$(grep 'pkg_version = ' flake.nix | sed 's/.*"\(.*\)".*/\1/')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "Current version in flake: $CURRENT_VERSION"
+          echo "Current version in flake: $CURRENT_VERSION" >> $GITHUB_STEP_SUMMARY
 
-      - name: Compare versions
-        id: compare
-        run: |
-          if [ "${{ steps.latest.outputs.version }}" != "${{ steps.current.outputs.version }}" ]; then
+          if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
             echo "needs_update=true" >> $GITHUB_OUTPUT
-            echo "New version available: ${{ steps.latest.outputs.version }}"
+            echo "New version available: $LATEST_VERSION" >> $GITHUB_STEP_SUMMARY
           else
             echo "needs_update=false" >> $GITHUB_OUTPUT
-            echo "Already up to date"
+            echo "Already up to date" >> $GITHUB_STEP_SUMMARY
           fi
-
-      - name: Calculate hashes for new version
-        if: steps.compare.outputs.needs_update == 'true'
-        id: hashes
-        run: |
-          chmod +x calc_hashes.sh
-          ./calc_hashes.sh ${{ steps.latest.outputs.version }} > /tmp/new_hashes.txt
-          cat /tmp/new_hashes.txt
 
       - name: Update flake.nix
         if: steps.compare.outputs.needs_update == 'true'
         run: |
-          chmod +x update_flake.sh
-          ./update_flake.sh ${{ steps.latest.outputs.version }} /tmp/new_hashes.txt
+          python update_flake.py ${{ steps.compare.outputs.version }}
 
       - name: Install Nix
         if: steps.compare.outputs.needs_update == 'true'
@@ -66,28 +50,16 @@ jobs:
         run: |
           nix build --no-link
           echo "Build successful!"
-
-      - name: Commit and tag
+        
+      - name: Commit and Push changes
         if: steps.compare.outputs.needs_update == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add flake.nix
-          git commit -m "chore(release): update to upstream version ${{ steps.latest.outputs.version }}"
-          git tag "v${{ steps.latest.outputs.version }}"
-
-      - name: Push changes
-        if: steps.compare.outputs.needs_update == 'true'
-        run: |
+          git add flake.nix README.md
+          git commit -m "New version ${{ steps.compare.outputs.version }}"
+          git tag "v${{ steps.compare.outputs.version }}"
           git push origin main
-          git push origin "v${{ steps.latest.outputs.version }}"
+          git push origin "v${{ steps.compare.outputs.version }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Summary
-        if: steps.compare.outputs.needs_update == 'true'
-        run: |
-          echo "✅ Successfully updated to version ${{ steps.latest.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Updated flake.nix" >> $GITHUB_STEP_SUMMARY
-          echo "- Built and verified package" >> $GITHUB_STEP_SUMMARY
-          echo "- Created commit and tag v${{ steps.latest.outputs.version }}" >> $GITHUB_STEP_SUMMARY
