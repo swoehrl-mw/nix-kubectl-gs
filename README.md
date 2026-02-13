@@ -6,7 +6,7 @@ This repository contains a very basic [Nix Flake](https://nixos.wiki/wiki/Flakes
 
 To reference this flake use the following format: `github:swoehrl-mw/nix-kubectl-gs/v<version>`. If you just want the latest version and don't care about version pinning, remove the `/v<version>` part.
 
-Example: `github:swoehrl-mw/nix-kubectl-gs/v4.10.0`
+Example: `github:swoehrl-mw/nix-kubectl-gs/v4.10.1`
 
 To use the package with [devbox](https://www.jetify.com/devbox/docs/), simply add the reference to your `devbox.json` `packages`:
 
@@ -14,7 +14,7 @@ To use the package with [devbox](https://www.jetify.com/devbox/docs/), simply ad
 {
     "packages": [
         "kubectl@latest",
-        "github:swoehrl-mw/nix-kubectl-gs/v4.10.0"
+        "github:swoehrl-mw/nix-kubectl-gs/v4.10.1"
     ]
 }
 ```
@@ -25,7 +25,7 @@ To add the package to a classic [nix-shell](https://nix.dev/tutorials/first-step
 pkgs.mkShellNoCC {
   packages = [
     pkgs.kubectl
-    (builtins.getFlake "github:swoehrl-mw/nix-kubectl-gs/v4.10.0").packages.${builtins.currentSystem}.kubectl-gs
+    (builtins.getFlake "github:swoehrl-mw/nix-kubectl-gs/v4.10.1").packages.${builtins.currentSystem}.kubectl-gs
   ];
 }
 ```
