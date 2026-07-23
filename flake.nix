@@ -17,7 +17,7 @@
       packages = forAllSystems (system:
         let 
           pkgs = nixpkgsFor.${system};
-          pkg_version = "5.6.4";
+          pkg_version = "5.7.2";
           # Map nix system names to download names for kubectl-gs releases
           name_mapping = {
             "x86_64-linux" = "linux-amd64";
@@ -27,12 +27,12 @@
           };
           # Hashes for the different architectures, calculated using ./calc_hashes.sh
           source_hashes = {
-            "linux-amd64" = "vkwXZlYeVEvPmytEM8wHo+gUo1A4E66+3JKbTES+r6k=";
-            "linux-arm64" = "Yaf/DSBcN37bPNP+q87lhy3BDsoy1TKkadcpWLri5UM=";
-            "darwin-amd64" = "A8UyPukF8q4OOAGmn1MxCPI4FT7JvUgL+sTejmJ8DIo=";
-            "darwin-arm64" = "jKQ1YOOw5ma+9r/Tc1WenyW0y460bRkGBdL1w5Gx1GM=";
+            "linux-amd64" = "FmtlbYsihSlF7Fqf0DWvq4p+b/whPytVa3iIgQhsOoM=";
+            "linux-arm64" = "vYxL6uetlNot/8kyAITFd7I7ExRLmLNr+eh2W0iY2ZM=";
+            "darwin-amd64" = "GZhMlUxgb8QXqrYUO0Gb1Ot+gvJk9YXC/AdJ9wXl8yY=";
+            "darwin-arm64" = "R2LZMEQZEKOQlb9K2GuXhguO7U9GtxJ/WymegQoq13Y=";
           };
-        in {
+        in rec {
           kubectl-gs = pkgs.stdenv.mkDerivation rec {
             pname = "kubectl-gs";
             version = "${pkg_version}";
@@ -41,6 +41,7 @@
                 "https://github.com/giantswarm/kubectl-gs/releases/download/v${pkg_version}/kubectl-gs-v${pkg_version}-${name_mapping.${system}}.tar.gz";
               sha256 = "${source_hashes.${name_mapping.${system}}}";
             };
+            sourceRoot = ".";
 
             dontConfigure = true;
             dontBuild = true;
@@ -49,8 +50,7 @@
               cp kubectl-gs $out/bin
             '';
           };
+          default = kubectl-gs;
         });
-
-      defaultPackage = forAllSystems (system: self.packages.${system}.kubectl-gs);
     };
 }
