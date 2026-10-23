@@ -18,15 +18,17 @@ jobs:
 
       - name: Get and compare versions
         id: compare
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_VERSION=$(curl -s https://api.github.com/repos/giantswarm/kubectl-gs/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          LATEST_VERSION=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/giantswarm/kubectl-gs/releases/latest | jq -r '.tag_name' | sed 's/^v//')
           if [ "$LATEST_VERSION" == "null" ]; then
             sleep 5
-            LATEST_VERSION=$(curl -s https://api.github.com/repos/giantswarm/kubectl-gs/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+            LATEST_VERSION=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/giantswarm/kubectl-gs/releases/latest | jq -r '.tag_name' | sed 's/^v//')
           fi
           if [ "$LATEST_VERSION" == "null" ]; then
             # Run command without silent flag to get info on why it failed
-            curl https://api.github.com/repos/giantswarm/kubectl-gs/releases/latest
+            curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/giantswarm/kubectl-gs/releases/latest
             echo "Could not retrieve version from releases. Aborting"
             echo "needs_update=false" >> $GITHUB_OUTPUT
             exit 0
