@@ -17,7 +17,7 @@
       packages = forAllSystems (system:
         let 
           pkgs = nixpkgsFor.${system};
-          pkg_version = "7.0.5";
+          pkg_version = "8.0.0";
           # Map nix system names to download names for kubectl-gs releases
           name_mapping = {
             "x86_64-linux" = "linux-amd64";
@@ -27,10 +27,10 @@
           };
           # Hashes for the different architectures, calculated using ./calc_hashes.sh
           source_hashes = {
-            "linux-amd64" = "qA5tm6VrgpPgJZzlZLdxYWCO9etnWkYYMw/UJm4PJBU=";
-            "linux-arm64" = "dxa1JaGGUTYSnzX5ei/GGCw+5M48xPvFMnmpieWo+vk=";
-            "darwin-amd64" = "PNKOMyFH2azJl3p/a1wURG8OD+7k6lylZspneWKSW/U=";
-            "darwin-arm64" = "pj1yMBfR/fq5p3Lpvo0VYQYWVClFhq7+KMNeooeuKxg=";
+            "linux-amd64" = "pkBTylbK0gItcthtQ/gIc+4gsAQXuuFOA3Izk1OX7fc=";
+            "linux-arm64" = "oD/ht4+XUonU+FAtZYAMsZ5RQhTfNaAUthSv0cF/ZP0=";
+            "darwin-amd64" = "VrzAx5kbgT2K6BptoURusVqewIzJb+iLybvnxvVvtao=";
+            "darwin-arm64" = "7olFkKg1VLSGdM4QsyK1x2bFsc8nze+Z1xluDAi28x4=";
           };
         in rec {
           kubectl-gs = pkgs.stdenv.mkDerivation rec {
